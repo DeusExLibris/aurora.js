@@ -19,15 +19,16 @@ class WebAudioDevice extends EventEmitter
         @context = sharedContext ?= new AudioContext
         @deviceSampleRate = @context.sampleRate
         
+        @node = @context[createProcessor](0, @channels, @channels)
+
         # calculate the buffer size to read
-        @bufferSize = Math.ceil(4096 / (@deviceSampleRate / @sampleRate) * @channels)
+        @bufferSize = Math.ceil(@node.bufferSize / (@deviceSampleRate / @sampleRate) * @channels)
         @bufferSize += @bufferSize % @channels
         
         # if the sample rate doesn't match the hardware sample rate, create a resampler
         if @deviceSampleRate isnt @sampleRate
             @resampler = new Resampler(@sampleRate, @deviceSampleRate, @channels, @bufferSize)
 
-        @node = @context[createProcessor](4096, @channels, @channels)
         @node.onaudioprocess = @refill
         @node.connect(@context.destination)
         
