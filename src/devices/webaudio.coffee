@@ -18,6 +18,10 @@ class WebAudioDevice extends EventEmitter
     constructor: (@sampleRate, @channels) ->
         @context = sharedContext ?= new AudioContext
         @deviceSampleRate = @context.sampleRate
+        if createProcessor is 'createJavaScriptNode'
+            scriptBufferSize = 4096
+        else
+            scriptBufferSize = 0
         
         @node = @context[createProcessor](0, @channels, @channels)
 
