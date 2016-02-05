@@ -9,8 +9,8 @@ class BufferList
     copy: ->
         result = new BufferList
 
-        result.first = @first
-        result.last = @last
+        result.first = @first.copy()
+        result.last = @last.copy()
         result.numBuffers = @numBuffers
         result.availableBytes = @availableBytes
         result.availableBuffers = @availableBuffers
