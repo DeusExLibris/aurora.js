@@ -79,8 +79,6 @@ class Asset extends EventEmitter
             @start()
             
     decodePacket: ->
-
-#        console.log "aurora_asset_decode," + Date.now()
         @decoder.decode()
         
     decodeToBuffer: (callback) ->
@@ -89,8 +87,6 @@ class Asset extends EventEmitter
         @on 'data', dataHandler = (chunk) ->
             length += chunk.length
             chunks.push chunk
-
-#            console.log "aurora_asset_decodeToBuffer," + Date.now() + "," + length + "," + chunks.length
             
         @once 'end', ->
             buf = new Float32Array(length)
@@ -107,8 +103,6 @@ class Asset extends EventEmitter
     
     probe: (chunk) =>
         return unless @active
-        
-#        console.log "aurora_asset_probe," + Date.now()
         demuxer = Demuxer.find(chunk)
         if not demuxer
             return @emit 'error', 'A demuxer for this container was not found.'
