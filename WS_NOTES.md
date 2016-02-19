@@ -14,7 +14,7 @@ to minimize the latency this introduces.
 A number of changes were made to the Aurora code.  In most cases, this is to facilitate
 better handling of streaming live content.
 
-* core/buffer.coffee
+### core/buffer.coffee
 
 The *append* method was added to allow the websockets code to buffer the first
 few blocks of data.  This was necessary since some decoders (mp3.js in particular)
@@ -28,14 +28,14 @@ audioBuffer.append(newData);
 Because *append* needed to rationalize the new data in the same way that the constructor
 does, a *sanitize* method was also added.
 
-* device/webaudio.coffee
+### device/webaudio.coffee
 
 This code was updated to allow the system to decide the proper size of the buffer
 for the ScriptNodeProcessor.  On older implementations that support
 the obsolete JavaScriptNode, the buffer size must be supplied, as having the system
 chose the best size was not available.
 
-* asset.coffee
+### asset.coffee
 
 Added references to WebsocketSource and WSWorkerSource source files.  Also added methods
 for creating the new sources - Asset#fromWebSocket and Asset#fromWSWorker.  Both forms
@@ -48,7 +48,7 @@ var wsUrl = "wss://www.example.org/wss",
 var asset = new Asset.fromWebSocket(wsUrl, wsFile);
 ```
 
-* queue.coffee
+### queue.coffee
 
 Initially, Aurora would stop if the queue of decoded audio was depleted.
 In a non-streaming context, this makes perfect sense.  However, slow network connections
