@@ -3,25 +3,28 @@ AVBuffer = require '../../core/buffer'
 
 class WSWorkerSource extends EventEmitter
   constructor: (@url, @file) ->
-    @buffer = new Array
-    @buffering = true
+    @wsBuffer = new AVBuffer(new Uint8Array())
+    @bufCount = 0
     @wsWorker = new Worker '/public/js/websocketWorker.js'
     @wsWorker.onmessage = (e) =>
       switch e.data.cmd
         when "data"
-          buf = new AVBuffer(e.data.data)
-          @bytesLoaded += e.data.data.byteLength
-          if @length
-            @emit 'progress', @bytesLoaded / @length * 100
-          if not @buffering
+          @bytesLoaded += data.byteLength
+
+          # Need to buffer the first four data blocks so demuxer has enough data
+          if @bufCount < 5
+            @wsBuffer.append(data)
+            if @bufCount == 4
+              if @length
+                @emit 'progress', @bytesLoaded / @length * 100
+              @emit 'data', @wsBuffer
+              @wsBuffer = new AVBuffer(new Uint8Array())
+            @bufCount++
+          else
+            buf = new AVBuffer(new Uint8Array(data))
+            if @length
+              @emit 'progress', @bytesLoaded / @length * 100
             @emit 'data', buf
-          else 
-            @buffer.push buf
-            if @buffer.length > 4
-              @buffering = false
-              while @buffer.length > 0
-                buf = @buffer.shift()
-                @emit 'data', buf
           
         when "fileSize"
             @length = e.data.value
@@ -52,4 +55,4 @@ class WSWorkerSource extends EventEmitter
     @wsWorker.postMessage { cmd: "reset" }
 
 
-module.exports = WebSocketSource
+module.exports = WSWorkerSource

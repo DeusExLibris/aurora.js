@@ -14,6 +14,8 @@ class WebSocketSource extends EventEmitter
 
     @bytesLoaded = 0
     @_bufferMessage = []
+    @wsBuffer = new AVBuffer(new Uint8Array())
+    @bufCount = 0
     @ack = false
     @paused = false
     @_setupSocket()
@@ -74,12 +76,22 @@ class WebSocketSource extends EventEmitter
         if data.end
           @socket.close()
       else
-        buf = new AVBuffer(new Uint8Array(data))
         @bytesLoaded += data.byteLength
 
-        if @length
-          @emit 'progress', @bytesLoaded / @length * 100
-        @emit 'data', buf
+        # Need to buffer the first few blocks of data so demuxer has enough data
+        if @bufCount < 5
+          @wsBuffer.append(data)
+          if @bufCount == 4
+            if @length
+              @emit 'progress', @bytesLoaded / @length * 100
+            @emit 'data', @wsBuffer
+            @wsBuffer = new AVBuffer(new Uint8Array())
+          @bufCount++
+        else
+          buf = new AVBuffer(new Uint8Array(data))
+          if @length
+            @emit 'progress', @bytesLoaded / @length * 100
+          @emit 'data', buf
 
     @socket.onclose = (e) =>
       @open = false
