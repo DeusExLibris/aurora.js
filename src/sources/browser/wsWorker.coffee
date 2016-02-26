@@ -9,6 +9,7 @@ class WSWorkerSource extends EventEmitter
     @wsWorker.onmessage = (e) =>
       switch e.data.cmd
         when "data"
+          data = e.data.data
           @bytesLoaded += data.byteLength
 
           # Need to buffer the first four data blocks so demuxer has enough data
